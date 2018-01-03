@@ -31,7 +31,7 @@ public class AmazonPriceList {
 				if (filteredList.size() > 0) {
 					AmazonScraper scraper = new AmazonScraper(filteredList);
 					PriceList list = scraper.getPrices();
-					AmazonScraperUtils.marshalProducts(list);
+					AmazonScraperUtils.marshalProducts(list, originalList);
 				}
 				if (client != null) {
 					try {

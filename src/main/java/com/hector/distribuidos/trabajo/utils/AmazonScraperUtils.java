@@ -21,13 +21,16 @@ public class AmazonScraperUtils {
 	
 	private final static long REFRESH_TIME = 5;
 	
-	public static void marshalProducts (PriceList prods) {
+	public static void marshalProducts (PriceList prods, PriceList originalProds) {
 		try {
+			List<ProductPrice> prodList = prods.getPrices();
+			prodList.addAll(originalProds.getPrices());
+			PriceList allProds = new PriceList(prodList);
 			JAXBContext ctxt = JAXBContext.newInstance(PriceList.class);
 			Marshaller m = ctxt.createMarshaller();
 			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-			m.marshal(prods, new File ("products.xml"));
-		} catch (JAXBException e){
+			m.marshal(allProds, new File("products.xml"));
+		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
 	}
