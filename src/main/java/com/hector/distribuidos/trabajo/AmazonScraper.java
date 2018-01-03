@@ -8,6 +8,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.hector.distribuidos.trabajo.model.PriceList;
 import com.hector.distribuidos.trabajo.model.ProductPrice;
 
 public class AmazonScraper {
@@ -20,7 +21,7 @@ public class AmazonScraper {
 		this.exec_time = new Date();
 	}
 	
-	public List<ProductPrice> getPrices () {
+	public PriceList getPrices () {
 		List<ProductPrice> list_prices = new ArrayList<>();
 		final CyclicBarrier cb = new CyclicBarrier(id_list.size() + 1);	
 		ExecutorService pool = Executors.newFixedThreadPool(id_list.size());
@@ -45,7 +46,7 @@ public class AmazonScraper {
 		} finally {
 			pool.shutdown();
 		}
-		return list_prices;
+		return new PriceList(list_prices);
 	}
 	
 }

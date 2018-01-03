@@ -3,6 +3,9 @@ package com.hector.distribuidos.trabajo.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+
 public class ProductPrice implements Serializable {
 	
 	private String id_prod;
@@ -16,7 +19,8 @@ public class ProductPrice implements Serializable {
 		this.price = price;
 		this.date = date;
 	}
-
+	
+	@XmlAttribute
 	public String getId_prod() {
 		return id_prod;
 	}
@@ -24,7 +28,8 @@ public class ProductPrice implements Serializable {
 	public void setId_prod(String id_prod) {
 		this.id_prod = id_prod;
 	}
-
+	
+	@XmlElement(name = "price")
 	public float getPrice() {
 		return price;
 	}
@@ -33,6 +38,7 @@ public class ProductPrice implements Serializable {
 		this.price = price;
 	}
 
+	@XmlElement(name = "date")
 	public Date getDate() {
 		return date;
 	}
