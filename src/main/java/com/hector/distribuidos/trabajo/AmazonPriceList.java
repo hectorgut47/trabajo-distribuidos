@@ -33,6 +33,13 @@ public class AmazonPriceList {
 					PriceList list = scraper.getPrices();
 					AmazonScraperUtils.marshalProducts(list);
 				}
+				if (client != null) {
+					try {
+						client.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
