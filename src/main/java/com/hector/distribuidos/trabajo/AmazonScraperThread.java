@@ -2,6 +2,7 @@ package com.hector.distribuidos.trabajo;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -37,15 +38,23 @@ public class AmazonScraperThread implements Runnable {
 	public void run () {
 		try {
 			URL url = new URL("https://www.amazon.es/gp/product/" + id_prod);
-			DataInputStream html = new DataInputStream(url.openStream());
-			String line;
-			while ((line = html.readLine()) != null) {
-				if (line.contains("id=\"priceblock_ourprice\""))
-					break;
+			HttpURLConnection con = (HttpURLConnection) url.openConnection ();
+			con.setRequestMethod ("HEAD");
+			con.connect();
+			int code = con.getResponseCode() ;
+			if (code < 400) {
+				DataInputStream html = new DataInputStream(url.openStream());
+				String line;
+				while ((line = html.readLine()) != null) {
+					if (line.contains("id=\"priceblock_ourprice\""))
+						break;
+				}
+				String price = line.substring(line.indexOf("EUR")+4, line.indexOf("</span>"));
+				NumberFormat nf = NumberFormat.getNumberInstance(new Locale("es","ES"));
+				this.prodprice = new ProductPrice(id_prod,nf.parse(price).floatValue(),exec_time);
+			} else if (code >= 500) {
+				this.prodprice = new ProductPrice(id_prod,-1,exec_time);
 			}
-			String price = line.substring(line.indexOf("EUR")+4, line.indexOf("</span>"));
-			NumberFormat nf = NumberFormat.getNumberInstance(new Locale("es","ES"));
-			this.prodprice = new ProductPrice(id_prod,nf.parse(price).floatValue(),exec_time);
 			cb.await();
 		} catch (MalformedURLException e) {
 			this.e = e;
