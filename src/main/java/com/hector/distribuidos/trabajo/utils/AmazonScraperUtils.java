@@ -3,11 +3,15 @@ package com.hector.distribuidos.trabajo.utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -36,7 +40,7 @@ public class AmazonScraperUtils {
 	}
 	
 	public static PriceList unmarshalProducts () {
-		PriceList list = null;
+		PriceList list = new PriceList();
 		File f = new File ("products.xml");
 		if (f.exists() && f.isFile()) {
 			try {
@@ -58,7 +62,7 @@ public class AmazonScraperUtils {
 			List<String> filteredList = new ArrayList<>();
 			for (String id: idList) {
 				Predicate<ProductPrice> pred = 
-					p -> !p.getId_prod().equals(id) || datediff(p.getDate(), new Date()) > REFRESH_TIME;
+					p -> p.getId_prod().equals(id) && datediff(p.getDate(), new Date()) < REFRESH_TIME;
 				if (!list.getPrices().stream().anyMatch(pred)) 
 					filteredList.add(id);
 			}
@@ -69,6 +73,37 @@ public class AmazonScraperUtils {
 	private static long datediff (Date d1, Date d2) {
 	    long diff = d2.getTime() - d1.getTime();
 	    return (TimeUnit.MINUTES).convert(diff,TimeUnit.MILLISECONDS);
+	}
+	
+	public static String generateReport(List<String> idList) {
+		PriceList list = unmarshalProducts();
+		StringBuffer sb = new StringBuffer();
+		sb.append("---------------" + System.lineSeparator());
+		sb.append("-------" + "PRICES REPORT" + "-------" + System.lineSeparator());
+		sb.append("---------------" + System.lineSeparator());
+		idList.forEach(id -> {
+			sb.append(generateIndividualReport(id,list));
+			sb.append("---------------" + System.lineSeparator());
+		});
+		return sb.toString();
+	}
+	
+	private static String generateIndividualReport(String id, PriceList list) {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd/MM/yyyy");
+		Map<Date,Float> map = new LinkedHashMap<>();
+		list.getPrices().stream()
+			.filter(p -> p.getId_prod().equals(id))
+			.forEach(p -> map.put(p.getDate(), p.getPrice()));
+		List<Date> dates = map.keySet().stream().sorted((d1,d2) -> d1.compareTo(d2)).collect(Collectors.toList());
+		StringBuffer sb = new StringBuffer();
+		sb.append("Product id: " + id + System.lineSeparator());
+		sb.append("  Original price: " + map.get(dates.get(0)) + " EUR at " + sdf.format(dates.get(0)) + System.lineSeparator());
+		dates.remove(0);
+		dates.forEach(d -> {
+			sb.append("  - Price at " + sdf.format(d) + " : " + map.get(d) + " EUR" + System.lineSeparator());
+
+		});
+		return sb.toString();
 	}
 
 }

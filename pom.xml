@@ -22,7 +22,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.hector.distribuidos.trabajo.AmazonPriceList</mainClass>
+							<mainClass>com.hector.distribuidos.trabajo.AmazonPriceListServer</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

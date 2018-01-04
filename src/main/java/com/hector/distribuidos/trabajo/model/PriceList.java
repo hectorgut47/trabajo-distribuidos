@@ -1,8 +1,15 @@
 package com.hector.distribuidos.trabajo.model;
 
+import com.hector.distribuidos.trabajo.model.ProductPrice;
+
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
