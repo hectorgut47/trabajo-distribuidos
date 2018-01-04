@@ -2,10 +2,7 @@ package com.hector.distribuidos.trabajo;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-<<<<<<< HEAD
-=======
 import java.io.InputStream;
->>>>>>> fix/secure-connection
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
