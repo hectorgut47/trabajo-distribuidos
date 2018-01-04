@@ -2,6 +2,10 @@ package com.hector.distribuidos.trabajo;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+<<<<<<< HEAD
+=======
+import java.io.InputStream;
+>>>>>>> fix/secure-connection
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,11 +43,11 @@ public class AmazonScraperThread implements Runnable {
 		try {
 			URL url = new URL("https://www.amazon.es/gp/product/" + id_prod);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection ();
-			con.setRequestMethod ("HEAD");
+			con.setRequestMethod("GET");
 			con.connect();
-			int code = con.getResponseCode() ;
+			int code = con.getResponseCode();
 			if (code < 400) {
-				DataInputStream html = new DataInputStream(url.openStream());
+				DataInputStream html = new DataInputStream((InputStream)con.getContent());
 				String line;
 				while ((line = html.readLine()) != null) {
 					if (line.contains("id=\"priceblock_ourprice\""))
@@ -52,8 +56,6 @@ public class AmazonScraperThread implements Runnable {
 				String price = line.substring(line.indexOf("EUR")+4, line.indexOf("</span>"));
 				NumberFormat nf = NumberFormat.getNumberInstance(new Locale("es","ES"));
 				this.prodprice = new ProductPrice(id_prod,nf.parse(price).floatValue(),exec_time);
-			} else if (code >= 500) {
-				this.prodprice = new ProductPrice(id_prod,-1,exec_time);
 			}
 			cb.await();
 		} catch (MalformedURLException e) {
