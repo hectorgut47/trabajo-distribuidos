@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -82,8 +83,11 @@ public class AmazonScraperUtils {
 		sb.append("-------" + "PRICES REPORT" + "-------" + System.lineSeparator());
 		sb.append("---------------" + System.lineSeparator());
 		idList.forEach(id -> {
-			sb.append(generateIndividualReport(id,list));
-			sb.append("---------------" + System.lineSeparator());
+			String report = generateIndividualReport(id,list);
+			if (report.length() > 0) {
+				sb.append(report);
+				sb.append("---------------" + System.lineSeparator());
+			}
 		});
 		return sb.toString();
 	}
@@ -91,18 +95,20 @@ public class AmazonScraperUtils {
 	private static String generateIndividualReport(String id, PriceList list) {
 		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, dd/MM/yyyy");
 		Map<Date,Float> map = new LinkedHashMap<>();
-		list.getPrices().stream()
-			.filter(p -> p.getId_prod().equals(id))
-			.forEach(p -> map.put(p.getDate(), p.getPrice()));
-		List<Date> dates = map.keySet().stream().sorted((d1,d2) -> d1.compareTo(d2)).collect(Collectors.toList());
 		StringBuffer sb = new StringBuffer();
-		sb.append("Product id: " + id + System.lineSeparator());
-		sb.append("  Original price: " + map.get(dates.get(0)) + " EUR at " + sdf.format(dates.get(0)) + System.lineSeparator());
-		dates.remove(0);
-		dates.forEach(d -> {
-			sb.append("  - Price at " + sdf.format(d) + " : " + map.get(d) + " EUR" + System.lineSeparator());
-
-		});
+		List<ProductPrice> filteredList = list.getPrices().stream()
+			.filter(p -> p.getId_prod().equals(id))
+			.collect(Collectors.toList());
+		if (filteredList.size() > 0) {
+			filteredList.forEach(p -> map.put(p.getDate(), p.getPrice()));
+			List<Date> dates = map.keySet().stream().sorted((d1,d2) -> d1.compareTo(d2)).collect(Collectors.toList());
+			sb.append("Product id: " + id + System.lineSeparator());
+			sb.append("  Original price: " + map.get(dates.get(0)) + " EUR at " + sdf.format(dates.get(0)) + System.lineSeparator());
+			dates.remove(0);
+			dates.forEach(d -> {
+				sb.append("  - Price at " + sdf.format(d) + " : " + map.get(d) + " EUR" + System.lineSeparator());
+			});
+		}
 		return sb.toString();
 	}
 

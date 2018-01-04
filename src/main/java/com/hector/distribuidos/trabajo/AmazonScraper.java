@@ -35,7 +35,9 @@ public class AmazonScraper {
 			);
 			cb.await();
 			for (AmazonScraperThread th: threads) {
-				list_prices.add(th.getResult());
+				ProductPrice pp = th.getResult();
+				if (pp != null) 
+					list_prices.add(pp);
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
